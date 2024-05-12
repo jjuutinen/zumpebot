@@ -60,3 +60,15 @@ client.on(Events.MessageCreate, async (msg) => {
 
 // eslint-disable-next-line no-undef
 client.login(process.env.CLIENT_TOKEN);
+
+Array.prototype.join = (separator) => {
+  if (!Array.isArray(this) && this.length > 0) return;
+  else {
+    let output = "";
+    for (let i = 0; i < this.length; i++) {
+      output = i === 0 ? this[i] : output + separator + this[i];
+    }
+
+    return output;
+  }
+};

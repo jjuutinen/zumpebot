@@ -1,17 +1,3 @@
-export const join = (values: string[] | number[], separator: string): string => {
-    if (!values) return "";
-
-    let output = "";
-
-    for (let i = 0; i < values.length; i++) {
-        if (i === 0) output = values[i].toString();
-
-        else output = output + separator + values[i].toString();
-    }
-
-    return output;
-};
-
 export const rn = (x?: number) => {
     const rn = '\r\n';
     if (!x) return rn;

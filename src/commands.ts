@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
 import { LiputonUtils } from "../utils/liputonutils";
-import { join } from "../utils/commonutils";
 
 const getWeatherForecast = require('./weather.ts');
 const {
@@ -19,7 +18,7 @@ const makeTimestamp = (command: string, params: string[], user: string) => {
   console.log(`[${timeStamp}][${user} executed]\r\ncmd:${command}`);
 
   if (params && params.length > 0)
-    console.log(`params:${join(params, " ")}`);
+    console.log(`params:${params.join(" ")}`);
 };
 
 const parseCommand = (command: string) => {
@@ -57,7 +56,7 @@ const executeCommand = async (props: Message<boolean>, prefix: "!" | "-") => {
   if (commandDict['liputon'].includes(command)) {
     if (params[0] === "refresh") {
       await refreshAllLiputonItems(props.channel);
-      console.log(`Refreshed liputon tracking. executed by ${props.author.toString()}`);
+      console.log(`Refreshed liputon tracking, executed by ${props.author.toString()}`);
     }
     else {
       const result = await execLiputonCommand(params);
@@ -72,62 +71,10 @@ const executeCommand = async (props: Message<boolean>, prefix: "!" | "-") => {
 
   if (commandDict['liputonhl'].includes(command)) {
     const user = props.author.toString();
+    const result = await execLiputonHighlightCommand(params, user);
 
-    if (params.length <= 0) {
-      const ids = await getUserLiputonHighlight(user);
-
-      if (!ids) {
-        props.channel.send("Et ole yhdenkään Liputon-tapahtuman ilmoituslistalla.");
-        return;
-      }
-
-      let output = `Sinulle tulee ilmoitus Liputon-lippumuutoksista ideillä: ${join(ids, ", ")}`;
-      props.channel.send(output);
-      return;
-    }
-
-    if (params[0].toLowerCase() === "add") {
-      if (params.length > 1) {
-        const id = params[1];
-        const res = await addLiputonHighlight(user, id);
-
-        if (res)
-          props.channel.send("LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumassa idllä: " + id);
-      }
-
-      else {
-        const res = await addLiputonHighlight(user);
-        const actives = getActiveLiputonTrackings();
-
-        if (res)
-          props.channel.send(`LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumissa id:llä ${join(actives, ", ")}`);
-      }
-      return;
-    }
-
-    if (params[0].toLowerCase() === "del" || params[0].toLowerCase() === "rem") {
-      if (params.length > 1) {
-        const id = params[1];
-        const res = await removeLiputonHighlight(user, id);
-
-        if (res)
-          props.channel.send("LIPUTON: Et saa enää ilmoituksia tapahtumasta id:llä: " + id);
-      }
-      else {
-        await removeLiputonHighlight(user);
-      }
-      return;
-    }
+    if (result) props.channel.send(result);
   }
-};
-
-
-const commandDict = {
-  "created": ["created"],
-  "shutdown": ["shutdown", "force_shutdown"],
-  "forecast": ["saa", "sää", "forecast", "weather", "we"],
-  "liputon": ["liputon", "lip", "lippu"],
-  "liputonhl": ["liphl", "liputonhl"]
 };
 
 const execLiputonCommand = async (params): Promise<string> => {
@@ -139,7 +86,7 @@ const execLiputonCommand = async (params): Promise<string> => {
     if (!active || active.length <= 0)
       output = "Yhdenkään tapahtuman lippuseuranta ei ole aktiivisena.";
 
-    let result = `Seuraavilla ID:illä on aktiivinen lippuseuranta: ${join(active, ", ")}.`;
+    let result = `Seuraavilla ID:illä on aktiivinen lippuseuranta: ${active.join(", ")}.`;
 
     return result;
 
@@ -158,7 +105,7 @@ const execLiputonCommand = async (params): Promise<string> => {
 
       result = await fetchLiputonInfoString(params[0]);
 
-      if (!result) return `Hakusanalla ${join(params, " ")} ei löytynyt tuloksia.`;
+      if (!result) return `Hakusanalla ${params.join(" ")} ei löytynyt tuloksia.`;
     }
 
     let output = "";
@@ -174,12 +121,54 @@ const execLiputonCommand = async (params): Promise<string> => {
   }
 };
 
+const execLiputonHighlightCommand = async (params: string[], user: string): Promise<string> => {
+  if (params.length <= 0) {
+    const ids = await getUserLiputonHighlight(user);
+
+    return !ids ? "Et ole yhdenkään Liputon-tapahtuman ilmoituslistalla." : `Sinulle tulee ilmoitus Liputon-lippumuutoksista ideillä: ${ids.join(", ")}`;;
+  }
+
+  if (params[0].toLowerCase() === "add") {
+    if (params.length > 1) {
+      const id = params[1];
+      const res = await addLiputonHighlight(user, id);
+
+      if (res)
+        return "LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumassa idllä: " + id;
+    }
+
+    else {
+      const res = await addLiputonHighlight(user);
+      const actives = getActiveLiputonTrackings();
+
+      if (res)
+        return `LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumissa id:llä ${actives.join(", ")}`;
+    }
+  }
+
+  if (params[0].toLowerCase() === "del" || params[0].toLowerCase() === "rem") {
+    if (params.length > 1) {
+      const id = params[1];
+      const res = await removeLiputonHighlight(user, id);
+
+      if (res) return "LIPUTON: Et saa enää ilmoituksia tapahtumasta id:llä: " + id;
+    }
+    else {
+      const res = await removeLiputonHighlight(user);
+      if (res) return "LIPUTON: Sinua ei enää ilmoiteta minkään tapahtuman lippumuutoksista.";
+    }
+    return "";
+  }
+};
+
 const execWeatherCommand = async (params: string[]): Promise<string> => {
   if (!params || params.length === 0 || params[0].length < 3) {
     return ("Anna hakukohde! Esim: !sää Kuopio");
   }
 
-  const result = await getWeatherForecast(params);
+  const location = params.length > 1 ? params.join(" ") : params[0];
+
+  const result = await getWeatherForecast(location);
 
   if (result != null) {
     const temperatureStr = result.weather.tempValue + result.weather.tempUnit;
@@ -196,9 +185,23 @@ const execWeatherCommand = async (params: string[]): Promise<string> => {
     return output;
   }
   else {
-    return "Säätietoja ei löytynyt hakusanalla: " + join(params, " ");
+    return "Säätietoja ei löytynyt hakusanalla: " + params.join(" ");
   }
 };
 
+const commandDict = {
+  "created": ["created"],
+  "shutdown": ["shutdown", "force_shutdown"],
+  "forecast": ["saa", "sää", "forecast", "weather", "we"],
+  "liputon": ["liputon", "lip", "lippu"],
+  "liputonhl": ["liphl", "liputonhl"]
+};
+
+const saaDict = {
+  "helsinki": ["hki"],
+  "kuopio": ["kpo"],
+  "turku": ["tku"],
+  "tampere": ["tre"]
+};
 
 module.exports = { executeCommand, setLiputonTimers, commandDict };
