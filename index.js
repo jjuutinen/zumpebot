@@ -1,7 +1,8 @@
+import { kpoloversGuildInfo } from "./kpolovers_info";
+
 require("dotenv").config();
 const { executeCommand, setLiputonTimers } = require("./commands.ts");
 const { executeHelpCommand } = require("./help_commands.ts");
-const { kpoloversGuildInfo } = require("./kpolovers_info.ts");
 //const today = new Date();
 //const ERRORLOG_FILE = `C:\\temp\\dcbot\\error_${today.getDate()}${today.getMonth()}${today.getFullYear()}.txt`;
 
