@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.2.0",
+    "typescript": "^5.4.3",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "tsx": "^4.7.1"
+  }
+}
