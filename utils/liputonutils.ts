@@ -1,4 +1,4 @@
-import { ILiputonResultPlain, ILiputonResult, ILiputonTicket } from "../liputon";
+import { ILiputonResultPlain, ILiputonResult, ILiputonTicket } from "../src/liputon";
 import { rn, distinct } from "./commonutils";
 
 export class LiputonUtils {

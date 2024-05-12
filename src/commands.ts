@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import { LiputonUtils } from "./utils/liputonutils";
-import { join } from "./utils/commonutils";
+import { LiputonUtils } from "../utils/liputonutils";
+import { join } from "../utils/commonutils";
 
 const getWeatherForecast = require('./weather.ts');
 const {
@@ -139,9 +139,7 @@ const execLiputonCommand = async (params): Promise<string> => {
     if (!active || active.length <= 0)
       output = "Yhdenkään tapahtuman lippuseuranta ei ole aktiivisena.";
 
-    let result = "Seuraavilla ID:illä on aktiivinen lippuseuranta: ";
-
-    active.forEach((a, i) => result = i === 0 ? result + a : result + ", " + a);
+    let result = `Seuraavilla ID:illä on aktiivinen lippuseuranta: ${join(active, ", ")}.`;
 
     return result;
 
@@ -173,12 +171,11 @@ const execLiputonCommand = async (params): Promise<string> => {
     }
 
     return output;
-
   }
 };
 
 const execWeatherCommand = async (params: string[]): Promise<string> => {
-  if (!params || params.length < 3) {
+  if (!params || params.length === 0 || params[0].length < 3) {
     return ("Anna hakukohde! Esim: !sää Kuopio");
   }
 

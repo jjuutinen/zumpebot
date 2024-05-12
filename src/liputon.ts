@@ -1,5 +1,5 @@
-import { rn } from "./utils/commonutils";
-import { LiputonUtils } from "./utils/liputonutils";
+import { rn } from "../utils/commonutils";
+import { LiputonUtils } from "../utils/liputonutils";
 
 const { getEventLiputonHighlight } = require("./liputon_highlight.ts");
 const fs = require('fs-extra');

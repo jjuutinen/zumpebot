@@ -1,8 +1,8 @@
 import { kpoloversGuildInfo } from "./kpolovers_info";
 
 require("dotenv").config();
-const { executeCommand, setLiputonTimers } = require("./commands.ts");
-const { executeHelpCommand } = require("./help_commands.ts");
+const { executeCommand, setLiputonTimers } = require("./src/commands.ts");
+const { executeHelpCommand } = require("./src/help_commands.ts");
 //const today = new Date();
 //const ERRORLOG_FILE = `C:\\temp\\dcbot\\error_${today.getDate()}${today.getMonth()}${today.getFullYear()}.txt`;
 
@@ -38,7 +38,7 @@ client.on(Events.ClientReady, async (c) => {
 
   const sandboxChannel = await kpolovers.channels.fetch(sandboxChannelId);
 
-  sandboxChannel.send("Listening sandbox...");
+  sandboxChannel.send("Listening channels...");
 });
 
 client.on(Events.MessageCreate, async (msg) => {
