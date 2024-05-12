@@ -7,31 +7,22 @@ interface ILiputonHighlightItem {
     names: string[];
 }
 
-const addLiputonHighlight = async (name: string, id?: string): Promise<boolean> => {
+const addLiputonHighlight = async (name: string, id: string): Promise<boolean> => {
     try {
         const existingItems = await fs.readJson(hlFile) as ILiputonHighlightItem[];
 
-        if (!id) {
-            existingItems.forEach(x => {
-                if (!x.names.includes(name)) x.names.push(name);
-            });
-        }
+        if (!existingItems.find(x => x.id === id))
+            existingItems.push({ id: id, names: [name] });
 
-        else {
-            if (!existingItems.find(x => x.id === id))
-                existingItems.push({ id: id, names: [name] });
+        else if (existingItems.find(x => x.id === id)?.names.includes(name))
+            return true;
 
-            else if (existingItems.find(x => x.id === id)?.names.includes(name))
-                return true;
-
-            else existingItems.find(x => x.id === id).names.push(id);
-        }
+        else existingItems.find(x => x.id === id).names.push(id);
 
         await fs.writeJson(hlFile, existingItems);
         return true;
     }
     catch { return false; }
-
 };
 
 const removeLiputonHighlight = async (name: string, id?: string): Promise<boolean> => {

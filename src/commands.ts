@@ -15,10 +15,12 @@ const { addLiputonHighlight, removeLiputonHighlight, getUserLiputonHighlight } =
 const makeTimestamp = (command: string, params: string[], user: string) => {
   const d = new Date();
   const timeStamp = `${d.toLocaleTimeString()}`;
-  console.log(`[${timeStamp}][${user} executed]\r\ncmd:${command}`);
+  let log = `[${timeStamp}][${user} executed command: ${command}]`;
 
   if (params && params.length > 0)
-    console.log(`params:${params.join(" ")}`);
+    log += `[params: ${params.join(" ")}]`;
+
+  console.log(log);
 };
 
 const parseCommand = (command: string) => {
@@ -115,6 +117,7 @@ const execLiputonCommand = async (params): Promise<string> => {
     else {
       output = `__**Tapahtuma: ${result.event.name} (ID: ${result.id})**__\r\n`;
       output = output + LiputonUtils.renderTicketInfo(result.tickets);
+      output = output + `\r\nhttps://liputon.fi/events/${result.id}`;
     }
 
     return output;
@@ -125,25 +128,20 @@ const execLiputonHighlightCommand = async (params: string[], user: string): Prom
   if (params.length <= 0) {
     const ids = await getUserLiputonHighlight(user);
 
-    return !ids ? "Et ole yhdenkään Liputon-tapahtuman ilmoituslistalla." : `Sinulle tulee ilmoitus Liputon-lippumuutoksista ideillä: ${ids.join(", ")}`;;
+    return !ids || ids.length === 0 ? "Et ole yhdenkään Liputon-tapahtuman ilmoituslistalla." :
+      `Sinulle tulee ilmoitus Liputon-lippumuutoksista ideillä: ${ids.join(", ")}`;
   }
 
   if (params[0].toLowerCase() === "add") {
-    if (params.length > 1) {
-      const id = params[1];
-      const res = await addLiputonHighlight(user, id);
+    if (params.length <= 1) return ("Käytä komentoa näin: !liphl add <id>. Esim: !liphl add 91926");
 
-      if (res)
-        return "LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumassa idllä: " + id;
-    }
+    const id = params[1];
+    const res = await addLiputonHighlight(user, id);
+    const actives = await getActiveLiputonTrackings();
 
-    else {
-      const res = await addLiputonHighlight(user);
-      const actives = getActiveLiputonTrackings();
+    if (res)
+      return `LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumissa id:llä ${actives.join(", ")}`;
 
-      if (res)
-        return `LIPUTON: Sinulle ilmoitetaan, jos tapahtuu muutoksia tapahtumissa id:llä ${actives.join(", ")}`;
-    }
   }
 
   if (params[0].toLowerCase() === "del" || params[0].toLowerCase() === "rem") {
